@@ -316,6 +316,22 @@ body.locked .app {
   user-select: none;
 }
 
+.joker-pair {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.beat-arrow {
+  font-size: 30px;
+  color: #ffd777;
+  text-shadow: 0 0 12px #ff8c2a;
+  font-weight: 900;
+}
+
+
 </style>
 </head>
 
@@ -1212,7 +1228,12 @@ function renderJoker() {
     jokerBotHand.map(() => backCardHTML()).join("");
 
   document.getElementById("jokerTable").innerHTML =
-    jokerTable.length ? jokerTable.map(c => jokerCardHTML(c)).join("") : "";
+    jokerTable.length
+      ? `<div class="joker-pair">
+          ${jokerCardHTML(jokerTable[0])}
+          ${jokerTable[1] ? `<div class="beat-arrow">→</div>${jokerCardHTML(jokerTable[1])}` : ""}
+        </div>`
+      : "";
 
   document.getElementById("jokerTakeBtn").disabled = !(jokerActive && jokerMode === "defend");
   updateBalances();
@@ -1237,21 +1258,28 @@ function jokerCardClick(index) {
       if (defenderIndex >= 0) {
         const botBeat = jokerBotHand.splice(defenderIndex, 1)[0];
         jokerTable.push(botBeat);
-        refillJokerHands();
-        jokerTable = [];
-        checkJokerEnd();
-        if (jokerActive) {
-          document.getElementById("jokerInfo").innerText = T[lang].botTurn;
-          setTimeout(botAttackJoker, 550);
-        }
+        document.getElementById("jokerInfo").innerText = `${T[lang].bot}: ${T[lang].defend}`;
+        renderJoker();
+
+        setTimeout(() => {
+          refillJokerHands();
+          jokerTable = [];
+          checkJokerEnd();
+          renderJoker();
+
+          if (jokerActive) {
+            document.getElementById("jokerInfo").innerText = T[lang].botTurn;
+            setTimeout(botAttackJoker, 550);
+          }
+        }, 1200);
       } else {
         jokerBotHand.push(card);
         jokerTable = [];
         refillJokerHands();
         checkJokerEnd();
         if (jokerActive) document.getElementById("jokerInfo").innerText = T[lang].yourTurn;
+        renderJoker();
       }
-      renderJoker();
     }, 450);
     return;
   }
@@ -1264,12 +1292,17 @@ function jokerCardClick(index) {
     }
     jokerPlayerHand.splice(index, 1);
     jokerTable.push(card);
-    refillJokerHands();
-    jokerTable = [];
-    jokerMode = "attack";
-    checkJokerEnd();
-    if (jokerActive) document.getElementById("jokerInfo").innerText = T[lang].yourTurn;
+    document.getElementById("jokerInfo").innerText = `${T[lang].player}: ${T[lang].defend}`;
     renderJoker();
+
+    setTimeout(() => {
+      refillJokerHands();
+      jokerTable = [];
+      jokerMode = "attack";
+      checkJokerEnd();
+      if (jokerActive) document.getElementById("jokerInfo").innerText = T[lang].yourTurn;
+      renderJoker();
+    }, 1200);
   }
 }
 
