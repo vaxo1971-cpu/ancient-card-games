@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>🃏 Ancient Card Games</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Noto+Serif+Georgian:wght@500;700;900&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Cinzel', 'Noto Serif Georgian', serif;
+  color: #f8df9b;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(255, 150, 50, 0.18), transparent 25%),
+    radial-gradient(circle at 80% 10%, rgba(255, 220, 120, 0.12), transparent 25%),
+    linear-gradient(145deg, #100604, #2a1208 45%, #050202);
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    url("https://www.transparenttextures.com/patterns/dark-wood.png"),
+    radial-gradient(circle, transparent, rgba(0,0,0,0.7));
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.app {
+  position: relative;
+  z-index: 2;
+  max-width: 1100px;
+  margin: auto;
+  padding: 24px;
+  text-align: center;
+}
+
+h1 {
+  font-size: 42px;
+  margin: 15px 0 10px;
+  color: #ffd777;
+  text-shadow: 0 0 18px #ff8c2a, 0 0 35px #7a2600;
+}
+
+h2 {
+  margin-top: 10px;
+  color: #ffe3a1;
+  text-shadow: 0 0 12px #c76a1a;
+}
+
+.panel {
+  background: rgba(25, 9, 3, 0.78);
+  border: 2px solid #8f5a22;
+  border-radius: 24px;
+  padding: 22px;
+  margin: 18px auto;
+  box-shadow:
+    0 0 35px rgba(255, 130, 20, 0.22),
+    inset 0 0 35px rgba(255, 170, 50, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 8px;
+  padding: 13px 22px;
+  border-radius: 16px;
+  border: 1px solid #ffc56d;
+  color: #2a1206;
+  background: linear-gradient(145deg, #ffe4a6, #b8732a);
+  box-shadow: 0 0 15px rgba(255, 166, 46, 0.45);
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(255, 190, 80, 0.8);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lang button {
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.hidden {
+  display: none;
+}
+
+.balance {
+  font-size: 23px;
+  color: #ffd777;
+  margin: 10px;
+}
+
+.table {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.zone {
+  flex: 1;
+  min-width: 280px;
+  background: rgba(0,0,0,0.22);
+  border-radius: 20px;
+  padding: 15px;
+  border: 1px solid rgba(255, 202, 105, 0.35);
+}
+
+.cards {
+  min-height: 155px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 15px;
+}
+
+.card {
+  width: 88px;
+  height: 128px;
+  border-radius: 17px;
+  background:
+    radial-gradient(circle at 30% 18%, rgba(255, 245, 185, 0.45), transparent 34%),
+    linear-gradient(145deg, #f8e1aa, #b77b38 46%, #4b210d);
+  border: 2px solid #ffd98a;
+  box-shadow:
+    0 0 20px rgba(255, 185, 65, 0.82),
+    0 0 42px rgba(181, 85, 20, 0.65),
+    inset 0 0 18px rgba(255, 240, 175, 0.42),
+    inset 0 0 30px rgba(42, 14, 4, 0.78);
+  color: #1b1208;
+  font-size: 31px;
+  font-weight: 900;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: 0.25s;
+  user-select: none;
+  position: relative;
+}
+
+.card::before {
+  content: "✦";
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.card::after {
+  content: "✦";
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.card:hover,
+.card.selected {
+  transform: translateY(-8px) scale(1.06);
+  box-shadow:
+    0 0 28px rgba(255, 220, 120, 1),
+    0 0 58px rgba(255, 120, 25, 0.85),
+    inset 0 0 22px rgba(255, 244, 190, 0.5),
+    inset 0 0 32px rgba(45, 15, 4, 0.85);
+}
+
+.card.red {
+  color: #8b0000;
+}
+
+.card.back {
+  background:
+    radial-gradient(circle, rgba(255, 210, 100, 0.22), transparent 45%),
+    linear-gradient(145deg, #3b1008, #120302);
+  color: #ffd777;
+}
+
+.info {
+  font-size: 18px;
+  color: #ffe5ad;
+  min-height: 34px;
+  margin: 10px;
+}
+
+.rules {
+  text-align: left;
+  line-height: 1.7;
+  color: #f6d48b;
+  max-width: 800px;
+  margin: auto;
+}
+
+
+.access-box {
+  max-width: 820px;
+  margin: 0 auto 18px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 202, 105, 0.45);
+  background: rgba(0,0,0,0.24);
+  box-shadow: inset 0 0 22px rgba(255, 170, 50, 0.07);
+}
+
+.payment-options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.access-status {
+  margin-top: 12px;
+  font-size: 16px;
+  color: #ffe5ad;
+}
+
+.security-note {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #d9b56d;
+  opacity: 0.88;
+}
+
+.card {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.card.selected {
+  outline: 3px solid #fff0a8;
+}
+
+
+.trial-badge {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 50;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 202, 105, 0.65);
+  background: rgba(15, 5, 2, 0.82);
+  color: #ffd777;
+  box-shadow: 0 0 20px rgba(255, 150, 40, 0.35);
+  font-size: 14px;
+  backdrop-filter: blur(5px);
+}
+
+.paywall-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: radial-gradient(circle at center, rgba(80, 24, 6, 0.96), rgba(5, 2, 1, 0.98));
+  color: #ffd777;
+  text-align: center;
+}
+
+.paywall-card {
+  width: min(680px, 96vw);
+  border: 2px solid #ffc56d;
+  border-radius: 26px;
+  padding: 28px;
+  background: rgba(20, 7, 2, 0.92);
+  box-shadow: 0 0 45px rgba(255, 140, 35, 0.45), inset 0 0 30px rgba(255, 190, 80, 0.08);
+}
+
+.paywall-card h1 {
+  margin-top: 0;
+  font-size: 34px;
+}
+
+.paywall-card p {
+  line-height: 1.55;
+  font-size: 17px;
+}
+
+.paywall-options {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+body.locked .app {
+  filter: blur(2px);
+  pointer-events: none;
+  user-select: none;
+}
+
+</style>
+</head>
+
+<body>
+<div class="app">
+  <div id="trialBadge" class="trial-badge"></div>
+
+  <h1>🃏 Ancient Card Games</h1>
+
+  <div class="lang">
+    <button onclick="setLang('ru')">🇷🇺 Русский</button>
+    <button onclick="setLang('en')">🇬🇧 English</button>
+    <button onclick="setLang('ka')">🇬🇪 ქართული</button>
+  </div>
+
+  <div id="menu" class="panel">
+    <h2 id="menuTitle">Выберите игру</h2>
+
+    <div class="access-box">
+      <h3 id="paymentTitle"></h3>
+      <div class="payment-options">
+        <button onclick="buyAccess('1h')" id="pay1hBtn"></button>
+        <button onclick="buyAccess('24h')" id="pay24hBtn"></button>
+        <button onclick="buyAccess('48h')" id="pay48hBtn"></button>
+      </div>
+      <div class="access-status" id="accessStatus"></div>
+      <div class="security-note" id="securityNote"></div>
+    </div>
+
+    <button onclick="showPoker()">🃏 Ancient Poker</button>
+    <button onclick="show21()">🂡 Emperor’s 21</button>
+    <button onclick="showJoker()">🃏 Joker Duel</button>
+
+    <div class="rules" id="rules"></div>
+  </div>
+
+  <div id="poker" class="panel hidden">
+    <h2>🃏 Ancient Poker</h2>
+    <div class="balance" id="pokerBalance"></div>
+
+    <div class="table">
+      <div class="zone">
+        <h3 id="playerText1"></h3>
+        <div class="cards" id="pokerPlayer"></div>
+      </div>
+      <div class="zone">
+        <h3 id="botText1"></h3>
+        <div class="cards" id="pokerBot"></div>
+      </div>
+    </div>
+
+    <div class="info" id="pokerInfo"></div>
+
+    <button onclick="dealPoker()" id="dealPokerBtn"></button>
+    <button onclick="replacePoker()" id="replacePokerBtn"></button>
+    <button onclick="finishPoker()" id="finishPokerBtn"></button>
+    <button onclick="backMenu()" id="menuBtn1"></button>
+  </div>
+
+  <div id="game21" class="panel hidden">
+    <h2>🂡 Emperor’s 21</h2>
+    <div class="balance" id="balance21"></div>
+
+    <div class="table">
+      <div class="zone">
+        <h3 id="playerText2"></h3>
+        <div class="cards" id="hand21"></div>
+        <div id="score21"></div>
+      </div>
+
+      <div class="zone">
+        <h3 id="botText2"></h3>
+        <div class="cards" id="bot21"></div>
+        <div id="botScore21"></div>
+      </div>
+    </div>
+
+    <div class="info" id="info21"></div>
+
+    <button onclick="start21()" id="start21Btn"></button>
+    <button onclick="hit21()" id="hit21Btn"></button>
+    <button onclick="stand21()" id="stand21Btn"></button>
+    <button onclick="backMenu()" id="menuBtn2"></button>
+  </div>
+
+  <div id="joker" class="panel hidden">
+    <h2>🃏 Joker Duel</h2>
+    <div class="balance" id="jokerBalance"></div>
+
+    <div class="table">
+      <div class="zone">
+        <h3 id="playerText3"></h3>
+        <div class="cards" id="jokerPlayer"></div>
+      </div>
+      <div class="zone">
+        <h3 id="tableText3"></h3>
+        <div class="cards" id="jokerTable"></div>
+      </div>
+      <div class="zone">
+        <h3 id="botText3"></h3>
+        <div class="cards" id="jokerBot"></div>
+      </div>
+    </div>
+
+    <div class="info" id="jokerInfo"></div>
+
+    <button onclick="startJoker()" id="startJokerBtn"></button>
+    <button onclick="jokerTake()" id="jokerTakeBtn"></button>
+    <button onclick="backMenu()" id="menuBtn3"></button>
+  </div>
+
+</div>
+
+<script>
+let lang = "ru";
+let balance = 100;
+let deck = [];
+
+const TG_BOT_USERNAME = "LastSpinRouletteBot"; // username Telegram-бота без @
+const PAYMENT_PLANS = {
+  "1h": { hours: 1, price: 50 },
+  "24h": { hours: 24, price: 150 },
+  "48h": { hours: 48, price: 300 }
+};
+const ACCESS_KEY = "ancient_card_games_access_v1";
+const TRIAL_KEY = "ancient_card_games_trial_start_v2";
+const TRIAL_DURATION = 5 * 60 * 1000; // 5 минут бесплатной игры для всех режимов
+const BALANCE_KEY = "ancient_card_games_balance_v1";
+const BALANCE_SIGN_KEY = "ancient_card_games_balance_sign_v1";
+const CLIENT_GUARD = "ancient-fire-guard";
+
+const T = {
+  ru: {
+    menu: "Выберите игру",
+    balance: "💰 Баланс",
+    player: "Игрок",
+    bot: "Бот",
+    deal: "🎴 Раздать",
+    replace: "🔁 Заменить выбранные карты",
+    finish: "⚔️ Завершить раунд",
+    menuBtn: "⬅ Меню",
+    start: "🎴 Начать",
+    hit: "➕ Взять",
+    stand: "✋ Хватит",
+    jokerStart: "🎴 Начать Джокер",
+    jokerTake: "🖐 Забрать карты",
+    tableCards: "Стол",
+    attack: "Атака",
+    defend: "Защита",
+    yourTurn: "Твой ход: выбери карту для атаки.",
+    botTurn: "Ход бота. Отбей карту или забери.",
+    beatWith: "Выбери карту, чтобы отбить.",
+    jokerWin: "Ты выиграл Джокер!",
+    jokerLose: "Бот выиграл Джокер!",
+    cannotBeat: "Этой картой нельзя отбить.",
+    noJokerGame: "Сначала начни игру Джокер.",
+    score: "Очки",
+    chooseCards: "Нажми на карты, которые хочешь заменить. Можно выбрать несколько карт.",
+    pokerWin: "Ты выиграл покер!",
+    pokerLose: "Бот выиграл покер!",
+    draw: "Ничья!",
+    bust: "Перебор!",
+    youWin: "Ты выиграл!",
+    botWin: "Бот выиграл!",
+    paymentTitle: "Доступ к игре",
+    pay1h: "⏳ 1 час — 50 ⭐",
+    pay24h: "🌙 24 часа — 150 ⭐",
+    pay48h: "🔥 48 часов — 300 ⭐",
+    accessActive: "Доступ активен до",
+    accessExpired: "Доступ не активен. Оплатите время игры в Telegram.",
+    paymentRedirect: "Открой Telegram для оплаты выбранного пакета.",
+    securityNote: "Защита: проверка доступа, срока оплаты, блокировка повторной замены карт и контроль состояния игры.",
+    noAccess: "Сначала оплатите доступ к игре.",
+    trialFree: "Бесплатная игра",
+    trialLeft: "Осталось",
+    trialReady: "5 минут бесплатно",
+    trialEnded: "Бесплатный доступ закончился",
+    buyContinue: "Купите продолжение игры",
+    trialExplain: "Вы использовали 5 бесплатных минут. Чтобы продолжить играть, выберите доступ на 1 час, 24 часа или 48 часов.",
+    openTelegram: "Оплата открывается через Telegram-бота.",
+    alreadyReplaced: "Карты уже заменены. Теперь завершите раунд.",
+    noCardsSelected: "Сначала нажми на карты, которые хочешь заменить.",
+    rules: `
+      <h3>Правила</h3>
+      <p><b>Ancient Poker:</b> игрок получает 5 карт. Нажми на несколько карт, чтобы заменить их. После замены бот тоже меняет слабые карты. Побеждает сильнейшая комбинация.</p>
+      <p><b>Emperor’s 21:</b> набери очки ближе к 21. Если больше 21 — проигрыш. Бот играет после тебя.</p>
+      <p><b>Joker Duel:</b> игра похожа на простого «дурака»: один игрок против бота. Джокер бьёт любую карту. Побеждает тот, кто первым избавится от карт.</p>
+    `
+  },
+  en: {
+    menu: "Choose a game",
+    balance: "💰 Balance",
+    player: "Player",
+    bot: "Bot",
+    deal: "🎴 Deal",
+    replace: "🔁 Replace selected cards",
+    finish: "⚔️ Finish round",
+    menuBtn: "⬅ Menu",
+    start: "🎴 Start",
+    hit: "➕ Hit",
+    stand: "✋ Stand",
+    jokerStart: "🎴 Start Joker",
+    jokerTake: "🖐 Take cards",
+    tableCards: "Table",
+    attack: "Attack",
+    defend: "Defend",
+    yourTurn: "Your turn: choose a card to attack.",
+    botTurn: "Bot turn. Beat the card or take it.",
+    beatWith: "Choose a card to beat.",
+    jokerWin: "You won Joker!",
+    jokerLose: "Bot won Joker!",
+    cannotBeat: "This card cannot beat.",
+    noJokerGame: "Start Joker first.",
+    score: "Score",
+    chooseCards: "Click the cards you want to replace. You may select several cards.",
+    pokerWin: "You won poker!",
+    pokerLose: "Bot won poker!",
+    draw: "Draw!",
+    bust: "Bust!",
+    youWin: "You win!",
+    botWin: "Bot wins!",
+    paymentTitle: "Game access",
+    pay1h: "⏳ 1 hour — 50 ⭐",
+    pay24h: "🌙 24 hours — 150 ⭐",
+    pay48h: "🔥 48 hours — 300 ⭐",
+    accessActive: "Access active until",
+    accessExpired: "Access is not active. Pay for game time in Telegram.",
+    paymentRedirect: "Open Telegram to pay for the selected package.",
+    securityNote: "Protection: access check, paid-time expiry, replacement lock and game-state control.",
+    noAccess: "Pay for access first.",
+    trialFree: "Free play",
+    trialLeft: "Left",
+    trialReady: "5 minutes free",
+    trialEnded: "Free trial has ended",
+    buyContinue: "Buy more game time",
+    trialExplain: "You used your 5 free minutes. To continue playing, choose access for 1 hour, 24 hours or 48 hours.",
+    openTelegram: "Payment opens through the Telegram bot.",
+    alreadyReplaced: "Cards were already replaced. Finish the round now.",
+    noCardsSelected: "First click the cards you want to replace.",
+    rules: `
+      <h3>Rules</h3>
+      <p><b>Ancient Poker:</b> player gets 5 cards. Click several cards to replace them. Then the bot replaces weak cards. Strongest hand wins.</p>
+      <p><b>Emperor’s 21:</b> get as close as possible to 21. Over 21 means bust. Bot plays after you.</p>
+      <p><b>Joker Duel:</b> a simple Durak-style duel: one player against the bot. Joker beats any card. The first player to get rid of all cards wins.</p>
+    `
+  },
+  ka: {
+    menu: "აირჩიე თამაში",
+    balance: "💰 ბალანსი",
+    player: "მოთამაშე",
+    bot: "ბოტი",
+    deal: "🎴 დარიგება",
+    replace: "🔁 არჩეული კარტების შეცვლა",
+    finish: "⚔️ რაუნდის დასრულება",
+    menuBtn: "⬅ მენიუ",
+    start: "🎴 დაწყება",
+    hit: "➕ კარტის აღება",
+    stand: "✋ საკმარისია",
+    jokerStart: "🎴 ჯოკერის დაწყება",
+    jokerTake: "🖐 კარტების აღება",
+    tableCards: "მაგიდა",
+    attack: "შეტევა",
+    defend: "დაცვა",
+    yourTurn: "შენი სვლაა: აირჩიე კარტი შეტევისთვის.",
+    botTurn: "ბოტის სვლაა. მოუგე კარტს ან აიღე.",
+    beatWith: "აირჩიე კარტი მოსაგებად.",
+    jokerWin: "შენ მოიგე ჯოკერი!",
+    jokerLose: "ბოტმა მოიგო ჯოკერი!",
+    cannotBeat: "ამ კარტით ვერ მოუგებ.",
+    noJokerGame: "ჯერ დაიწყე ჯოკერის თამაში.",
+    score: "ქულები",
+    chooseCards: "დააჭირე იმ კარტებს, რომელთა შეცვლაც გინდა. შეგიძლია რამდენიმე კარტის არჩევა.",
+    pokerWin: "შენ მოიგე პოკერი!",
+    pokerLose: "ბოტმა მოიგო პოკერი!",
+    draw: "ფრე!",
+    bust: "გადააჭარბე!",
+    youWin: "შენ მოიგე!",
+    botWin: "ბოტმა მოიგო!",
+    paymentTitle: "თამაშზე წვდომა",
+    pay1h: "⏳ 1 საათი — 50 ⭐",
+    pay24h: "🌙 24 საათი — 150 ⭐",
+    pay48h: "🔥 48 საათი — 300 ⭐",
+    accessActive: "წვდომა აქტიურია",
+    accessExpired: "წვდომა არ არის აქტიური. გადაიხადე თამაშის დრო Telegram-ში.",
+    paymentRedirect: "გახსენით Telegram არჩეული პაკეტის გადასახდელად.",
+    securityNote: "დაცვა: წვდომის შემოწმება, გადახდილი დროის ვადა, კარტების განმეორებითი შეცვლის ბლოკირება და თამაშის მდგომარეობის კონტროლი.",
+    noAccess: "ჯერ გადაიხადე წვდომა.",
+    trialFree: "უფასო თამაში",
+    trialLeft: "დარჩა",
+    trialReady: "5 წუთი უფასოდ",
+    trialEnded: "უფასო დრო დასრულდა",
+    buyContinue: "შეიძინე თამაშის გაგრძელება",
+    trialExplain: "თქვენ გამოიყენეთ 5 უფასო წუთი. გასაგრძელებლად აირჩიეთ წვდომა 1 საათით, 24 საათით ან 48 საათით.",
+    openTelegram: "გადახდა გაიხსნება Telegram-ბოტში.",
+    alreadyReplaced: "კარტები უკვე შეიცვალა. ახლა დაასრულე რაუნდი.",
+    noCardsSelected: "ჯერ დააჭირე შესაცვლელ კარტებს.",
+    rules: `
+      <h3>წესები</h3>
+      <p><b>Ancient Poker:</b> მოთამაშე იღებს 5 კარტს. დააჭირე რამდენიმე კარტს შესაცვლელად. შემდეგ ბოტიც ცვლის სუსტ კარტებს. იგებს ძლიერი კომბინაცია.</p>
+      <p><b>Emperor’s 21:</b> დააგროვე 21-თან მაქსიმალურად ახლოს ქულები. თუ 21-ს გადააჭარბებ — აგებ. ბოტი თამაშობს შენ შემდეგ.</p>
+      <p><b>Joker Duel:</b> მარტივი „დურაკის“ სტილის დუელი: მოთამაშე ბოტის წინააღმდეგ. ჯოკერი ნებისმიერ კარტს იგებს. იგებს ის, ვინც პირველი დარჩება კარტების გარეშე.</p>
+    `
+  }
+};
+
+const suits = ["♠", "♥", "♦", "♣"];
+const ranks = ["A", "K", "Q", "J", "10", "9", "8", "7", "6"];
+
+let pokerPlayer = [];
+let pokerBot = [];
+let selected = [];
+let pokerReplaced = false;
+let pokerRoundActive = false;
+
+let hand21 = [];
+let botHand21 = [];
+let game21Active = false;
+
+let jokerDeck = [];
+let jokerPlayerHand = [];
+let jokerBotHand = [];
+let jokerTable = [];
+let jokerMode = "attack";
+let jokerActive = false;
+
+
+function simpleHash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+  }
+  return (h >>> 0).toString(16);
+}
+
+function saveBalance() {
+  localStorage.setItem(BALANCE_KEY, String(balance));
+  localStorage.setItem(BALANCE_SIGN_KEY, simpleHash(String(balance) + CLIENT_GUARD));
+}
+
+function loadBalance() {
+  const saved = localStorage.getItem(BALANCE_KEY);
+  const sign = localStorage.getItem(BALANCE_SIGN_KEY);
+  if (saved !== null && sign === simpleHash(saved + CLIENT_GUARD)) {
+    balance = Number(saved);
+  } else {
+    saveBalance();
+  }
+}
+
+
+function formatTime(ms) {
+  const safe = Math.max(0, ms);
+  const total = Math.ceil(safe / 1000);
+  const m = Math.floor(total / 60);
+  const sec = String(total % 60).padStart(2, "0");
+  return `${m}:${sec}`;
+}
+
+function getTrialStart() {
+  const raw = localStorage.getItem(TRIAL_KEY);
+  const n = Number(raw);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+function startTrialIfNeeded() {
+  if (!getTrialStart()) {
+    localStorage.setItem(TRIAL_KEY, String(Date.now()));
+  }
+}
+
+function trialRemaining() {
+  const started = getTrialStart();
+  if (!started) return TRIAL_DURATION;
+  return TRIAL_DURATION - (Date.now() - started);
+}
+
+function hasTrialAccess() {
+  return trialRemaining() > 0;
+}
+
+function setAccessUntil(until) {
+  localStorage.setItem(ACCESS_KEY, JSON.stringify({
+    until,
+    sign: simpleHash(String(until) + CLIENT_GUARD)
+  }));
+  hidePaywall();
+  updateAccessStatus();
+}
+
+function getAccessUntil() {
+  const raw = localStorage.getItem(ACCESS_KEY);
+  if (!raw) return 0;
+  try {
+    const data = JSON.parse(raw);
+    const check = simpleHash(String(data.until) + CLIENT_GUARD);
+    return data.sign === check ? Number(data.until) : 0;
+  } catch (e) {
+    return 0;
+  }
+}
+
+function hasAccess() {
+  return getAccessUntil() > Date.now();
+}
+
+function activateAccess(hours) {
+  const base = Math.max(Date.now(), getAccessUntil());
+  const until = base + hours * 60 * 60 * 1000;
+  setAccessUntil(until);
+}
+
+function updateAccessStatus() {
+  const until = getAccessUntil();
+  const el = document.getElementById("accessStatus");
+  const badge = document.getElementById("trialBadge");
+  if (until > Date.now()) {
+    const paidText = `${T[lang].accessActive}: ${new Date(until).toLocaleString()}`;
+    if (el) el.innerText = paidText;
+    if (badge) badge.innerText = paidText;
+    hidePaywall();
+  } else {
+    const rem = trialRemaining();
+    if (rem > 0) {
+      const text = getTrialStart()
+        ? `${T[lang].trialFree}: ${T[lang].trialLeft} ${formatTime(rem)}`
+        : T[lang].trialReady;
+      if (el) el.innerText = text;
+      if (badge) badge.innerText = text;
+    } else {
+      if (el) el.innerText = T[lang].accessExpired;
+      if (badge) badge.innerText = `${T[lang].trialEnded}`;
+    }
+  }
+}
+
+function buyAccess(planId) {
+  const plan = PAYMENT_PLANS[planId];
+  if (!plan) return;
+
+  const payLink = `https://t.me/${TG_BOT_USERNAME}?start=pay_${planId}_${plan.price}`;
+  document.getElementById("accessStatus").innerText = `${T[lang].paymentRedirect} ${plan.price} ⭐`;
+
+  if (TG_BOT_USERNAME !== "YOUR_BOT_USERNAME") {
+    window.open(payLink, "_blank");
+  }
+
+  // Доступ НЕ активируется локально. Его должен подтвердить бот/сервер после успешной оплаты.
+  // После оплаты checkAccess() получит paid-until с Render и разблокирует игру.
+}
+
+function requireAccess() {
+  if (hasAccess()) return true;
+  startTrialIfNeeded();
+  if (hasTrialAccess()) {
+    updateAccessStatus();
+    return true;
+  }
+  showPaywall();
+  return false;
+}
+
+function hidePaywall() {
+  const existing = document.getElementById("paywallOverlay");
+  if (existing) existing.remove();
+  document.body.classList.remove("locked");
+}
+
+function showPaywall() {
+  if (hasAccess()) {
+    hidePaywall();
+    return;
+  }
+  updateAccessStatus();
+  if (document.getElementById("paywallOverlay")) return;
+  document.body.classList.add("locked");
+  const overlay = document.createElement("div");
+  overlay.id = "paywallOverlay";
+  overlay.className = "paywall-overlay";
+  overlay.innerHTML = `
+    <div class="paywall-card">
+      <h1>⛔ ${T[lang].trialEnded}</h1>
+      <h2>${T[lang].buyContinue}</h2>
+      <p>${T[lang].trialExplain}</p>
+      <div class="paywall-options">
+        <button onclick="buyAccess('1h')">${T[lang].pay1h}</button>
+        <button onclick="buyAccess('24h')">${T[lang].pay24h}</button>
+        <button onclick="buyAccess('48h')">${T[lang].pay48h}</button>
+      </div>
+      <p class="security-note">${T[lang].openTelegram}</p>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function enforceAccess() {
+  if (hasAccess()) {
+    hidePaywall();
+    updateAccessStatus();
+    return;
+  }
+  if (getTrialStart() && !hasTrialAccess()) {
+    showPaywall();
+  } else {
+    updateAccessStatus();
+  }
+}
+
+function setLang(l) {
+  lang = l;
+  loadBalance();
+  applyText();
+  enforceAccess();
+}
+
+function applyText() {
+  document.getElementById("menuTitle").innerHTML = T[lang].menu;
+  document.getElementById("rules").innerHTML = T[lang].rules;
+  document.getElementById("paymentTitle").innerText = T[lang].paymentTitle;
+  document.getElementById("pay1hBtn").innerText = T[lang].pay1h;
+  document.getElementById("pay24hBtn").innerText = T[lang].pay24h;
+  document.getElementById("pay48hBtn").innerText = T[lang].pay48h;
+  document.getElementById("securityNote").innerText = T[lang].securityNote;
+
+  document.getElementById("playerText1").innerText = T[lang].player;
+  document.getElementById("botText1").innerText = T[lang].bot;
+  document.getElementById("playerText2").innerText = T[lang].player;
+  document.getElementById("botText2").innerText = T[lang].bot;
+  document.getElementById("playerText3").innerText = T[lang].player;
+  document.getElementById("botText3").innerText = T[lang].bot;
+  document.getElementById("tableText3").innerText = T[lang].tableCards;
+
+  document.getElementById("dealPokerBtn").innerText = T[lang].deal;
+  document.getElementById("replacePokerBtn").innerText = T[lang].replace;
+  document.getElementById("finishPokerBtn").innerText = T[lang].finish;
+  document.getElementById("menuBtn1").innerText = T[lang].menuBtn;
+
+  document.getElementById("start21Btn").innerText = T[lang].start;
+  document.getElementById("hit21Btn").innerText = T[lang].hit;
+  document.getElementById("stand21Btn").innerText = T[lang].stand;
+  document.getElementById("menuBtn2").innerText = T[lang].menuBtn;
+  document.getElementById("startJokerBtn").innerText = T[lang].jokerStart;
+  document.getElementById("jokerTakeBtn").innerText = T[lang].jokerTake;
+  document.getElementById("menuBtn3").innerText = T[lang].menuBtn;
+
+  updateBalances();
+  updateAccessStatus();
+}
+
+function updateBalances() {
+  document.getElementById("pokerBalance").innerText = `${T[lang].balance}: ${balance}`;
+  document.getElementById("balance21").innerText = `${T[lang].balance}: ${balance}`;
+  document.getElementById("jokerBalance").innerText = `${T[lang].balance}: ${balance}`;
+  saveBalance();
+}
+
+function makeDeck() {
+  deck = [];
+  for (let s of suits) {
+    for (let r of ranks) {
+      deck.push({ rank: r, suit: s });
+    }
+  }
+  deck.sort(() => Math.random() - 0.5);
+}
+
+function drawCard() {
+  return deck.pop();
+}
+
+function cardHTML(card, index = null) {
+  let red = card.suit === "♥" || card.suit === "♦" ? "red" : "";
+  let selectedClass = selected.includes(index) ? "selected" : "";
+  let click = index !== null ? `onclick="toggleSelect(${index})"` : "";
+  return `<div class="card ${red} ${selectedClass}" ${click} role="button" tabindex="0">
+    <div>${card.rank}</div>
+    <div>${card.suit}</div>
+  </div>`;
+}
+
+function backCardHTML() {
+  return `<div class="card back">✦<br>?</div>`;
+}
+
+function showPoker() {
+  if (!requireAccess()) return;
+  document.getElementById("menu").classList.add("hidden");
+  document.getElementById("game21").classList.add("hidden");
+  document.getElementById("joker").classList.add("hidden");
+  document.getElementById("poker").classList.remove("hidden");
+  updateBalances();
+}
+
+function show21() {
+  if (!requireAccess()) return;
+  document.getElementById("menu").classList.add("hidden");
+  document.getElementById("poker").classList.add("hidden");
+  document.getElementById("joker").classList.add("hidden");
+  document.getElementById("game21").classList.remove("hidden");
+  updateBalances();
+}
+
+function backMenu() {
+  document.getElementById("poker").classList.add("hidden");
+  document.getElementById("game21").classList.add("hidden");
+  document.getElementById("joker").classList.add("hidden");
+  document.getElementById("menu").classList.remove("hidden");
+}
+
+function dealPoker() {
+  if (!requireAccess()) return;
+  makeDeck();
+  pokerPlayer = [];
+  pokerBot = [];
+  selected = [];
+  pokerReplaced = false;
+  pokerRoundActive = true;
+
+  for (let i = 0; i < 5; i++) {
+    pokerPlayer.push(drawCard());
+    pokerBot.push(drawCard());
+  }
+
+  document.getElementById("pokerInfo").innerText = T[lang].chooseCards;
+  document.getElementById("replacePokerBtn").disabled = false;
+  document.getElementById("finishPokerBtn").disabled = false;
+  renderPoker(false);
+}
+
+function renderPoker(showBot) {
+  document.getElementById("pokerPlayer").innerHTML =
+    pokerPlayer.map((c, i) => cardHTML(c, i)).join("");
+
+  document.getElementById("pokerBot").innerHTML =
+    showBot ? pokerBot.map(c => cardHTML(c)).join("") :
+    pokerBot.map(() => backCardHTML()).join("");
+
+  updateBalances();
+}
+
+function toggleSelect(i) {
+  if (!requireAccess()) return;
+  if (selected.includes(i)) {
+    selected = selected.filter(x => x !== i);
+  } else {
+    selected.push(i);
+  }
+  renderPoker(false);
+}
+
+function replacePoker() {
+  if (!requireAccess() || !pokerRoundActive) return;
+  if (pokerReplaced) {
+    document.getElementById("pokerInfo").innerText = T[lang].alreadyReplaced;
+    return;
+  }
+  if (selected.length === 0) {
+    document.getElementById("pokerInfo").innerText = T[lang].noCardsSelected;
+    return;
+  }
+  for (let i of selected) {
+    pokerPlayer[i] = drawCard();
+  }
+  selected = [];
+  pokerReplaced = true;
+  document.getElementById("replacePokerBtn").disabled = true;
+
+  botReplacePoker();
+  renderPoker(false);
+  document.getElementById("pokerInfo").innerText = T[lang].finish;
+}
+
+function botReplacePoker() {
+  let counts = {};
+  pokerBot.forEach(c => counts[c.rank] = (counts[c.rank] || 0) + 1);
+
+  for (let i = 0; i < pokerBot.length; i++) {
+    if (counts[pokerBot[i].rank] === 1 && Math.random() < 0.65) {
+      pokerBot[i] = drawCard();
+    }
+  }
+}
+
+function pokerValue(hand) {
+  let values = hand.map(c => ranks.length - ranks.indexOf(c.rank));
+  let counts = {};
+  hand.forEach(c => counts[c.rank] = (counts[c.rank] || 0) + 1);
+  let groups = Object.values(counts).sort((a,b) => b-a);
+
+  let score = values.reduce((a,b) => a+b, 0);
+
+  if (groups[0] === 4) score += 700;
+  else if (groups[0] === 3 && groups[1] === 2) score += 600;
+  else if (groups[0] === 3) score += 400;
+  else if (groups[0] === 2 && groups[1] === 2) score += 300;
+  else if (groups[0] === 2) score += 150;
+
+  return score;
+}
+
+function finishPoker() {
+  if (!requireAccess() || !pokerRoundActive) return;
+  let p = pokerValue(pokerPlayer);
+  let b = pokerValue(pokerBot);
+
+  renderPoker(true);
+
+  if (p > b) {
+    balance += 20;
+    document.getElementById("pokerInfo").innerText = T[lang].pokerWin + " +20";
+  } else if (b > p) {
+    balance -= 20;
+    document.getElementById("pokerInfo").innerText = T[lang].pokerLose + " -20";
+  } else {
+    document.getElementById("pokerInfo").innerText = T[lang].draw;
+  }
+
+  pokerRoundActive = false;
+  document.getElementById("replacePokerBtn").disabled = true;
+  document.getElementById("finishPokerBtn").disabled = true;
+  updateBalances();
+}
+
+function start21() {
+  if (!requireAccess()) return;
+  makeDeck();
+  hand21 = [drawCard(), drawCard()];
+  botHand21 = [drawCard(), drawCard()];
+  game21Active = true;
+  document.getElementById("info21").innerText = "";
+  render21(false);
+}
+
+function value21(hand) {
+  let total = 0;
+  let aces = 0;
+
+  for (let c of hand) {
+    if (c.rank === "A") {
+      total += 11;
+      aces++;
+    } else if (["K", "Q", "J"].includes(c.rank)) {
+      total += 10;
+    } else {
+      total += parseInt(c.rank);
+    }
+  }
+
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+
+  return total;
+}
+
+function render21(showBot) {
+  document.getElementById("hand21").innerHTML =
+    hand21.map(c => cardHTML(c)).join("");
+
+  document.getElementById("score21").innerText =
+    `${T[lang].score}: ${value21(hand21)}`;
+
+  document.getElementById("bot21").innerHTML =
+    showBot ? botHand21.map(c => cardHTML(c)).join("") :
+    botHand21.map(() => backCardHTML()).join("");
+
+  document.getElementById("botScore21").innerText =
+    showBot ? `${T[lang].score}: ${value21(botHand21)}` : "";
+
+  updateBalances();
+}
+
+function hit21() {
+  if (!requireAccess() || !game21Active) return;
+
+  hand21.push(drawCard());
+
+  if (value21(hand21) > 21) {
+    game21Active = false;
+    balance -= 15;
+    render21(true);
+    document.getElementById("info21").innerText = `${T[lang].bust} ${T[lang].botWin} -15`;
+    updateBalances();
+  } else {
+    render21(false);
+  }
+}
+
+function stand21() {
+  if (!requireAccess() || !game21Active) return;
+
+  while (value21(botHand21) < 17) {
+    botHand21.push(drawCard());
+  }
+
+  let p = value21(hand21);
+  let b = value21(botHand21);
+
+  game21Active = false;
+  render21(true);
+
+  if (b > 21 || p > b) {
+    balance += 15;
+    document.getElementById("info21").innerText = `${T[lang].youWin} +15`;
+  } else if (b > p) {
+    balance -= 15;
+    document.getElementById("info21").innerText = `${T[lang].botWin} -15`;
+  } else {
+    document.getElementById("info21").innerText = T[lang].draw;
+  }
+
+  updateBalances();
+}
+
+
+function makeJokerDeck() {
+  jokerDeck = [];
+  const jokerRanks = ["A", "K", "Q", "J", "10", "9", "8", "7", "6"];
+  for (let s of suits) {
+    for (let r of jokerRanks) {
+      jokerDeck.push({ rank: r, suit: s });
+    }
+  }
+  jokerDeck.push({ rank: "JOKER", suit: "🃏" });
+  jokerDeck.push({ rank: "JOKER", suit: "🃏" });
+  jokerDeck.sort(() => Math.random() - 0.5);
+}
+
+function drawJokerCard() {
+  return jokerDeck.pop();
+}
+
+function jokerCardHTML(card, index = null) {
+  const red = card.suit === "♥" || card.suit === "♦" ? "red" : "";
+  const textRank = card.rank === "JOKER" ? "JOKER" : card.rank;
+  const click = index !== null ? `onclick="jokerCardClick(${index})"` : "";
+  return `<div class="card ${red}" ${click} role="button" tabindex="0">
+    <div>${textRank}</div>
+    <div>${card.suit}</div>
+  </div>`;
+}
+
+function jokerRankValue(card) {
+  if (card.rank === "JOKER") return 100;
+  const order = { "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14 };
+  return order[card.rank] || 0;
+}
+
+function canBeatJoker(beatCard, attackCard) {
+  if (!attackCard || !beatCard) return false;
+  if (beatCard.rank === "JOKER") return true;
+  if (attackCard.rank === "JOKER") return false;
+  return beatCard.suit === attackCard.suit && jokerRankValue(beatCard) > jokerRankValue(attackCard);
+}
+
+function refillJokerHands() {
+  while (jokerPlayerHand.length < 6 && jokerDeck.length) jokerPlayerHand.push(drawJokerCard());
+  while (jokerBotHand.length < 6 && jokerDeck.length) jokerBotHand.push(drawJokerCard());
+}
+
+function showJoker() {
+  if (!requireAccess()) return;
+  document.getElementById("menu").classList.add("hidden");
+  document.getElementById("poker").classList.add("hidden");
+  document.getElementById("game21").classList.add("hidden");
+  document.getElementById("joker").classList.remove("hidden");
+  updateBalances();
+}
+
+function startJoker() {
+  if (!requireAccess()) return;
+  makeJokerDeck();
+  jokerPlayerHand = [];
+  jokerBotHand = [];
+  jokerTable = [];
+  jokerActive = true;
+  jokerMode = "attack";
+
+  for (let i = 0; i < 6; i++) {
+    jokerPlayerHand.push(drawJokerCard());
+    jokerBotHand.push(drawJokerCard());
+  }
+
+  document.getElementById("jokerInfo").innerText = T[lang].yourTurn;
+  renderJoker();
+}
+
+function renderJoker() {
+  document.getElementById("jokerPlayer").innerHTML =
+    jokerPlayerHand.map((c, i) => jokerCardHTML(c, i)).join("");
+
+  document.getElementById("jokerBot").innerHTML =
+    jokerBotHand.map(() => backCardHTML()).join("");
+
+  document.getElementById("jokerTable").innerHTML =
+    jokerTable.length ? jokerTable.map(c => jokerCardHTML(c)).join("") : "";
+
+  document.getElementById("jokerTakeBtn").disabled = !(jokerActive && jokerMode === "defend");
+  updateBalances();
+}
+
+function jokerCardClick(index) {
+  if (!requireAccess()) return;
+  if (!jokerActive) {
+    document.getElementById("jokerInfo").innerText = T[lang].noJokerGame;
+    return;
+  }
+
+  const card = jokerPlayerHand[index];
+
+  if (jokerMode === "attack") {
+    jokerPlayerHand.splice(index, 1);
+    jokerTable = [card];
+    renderJoker();
+
+    setTimeout(() => {
+      const defenderIndex = jokerBotHand.findIndex(c => canBeatJoker(c, card));
+      if (defenderIndex >= 0) {
+        const botBeat = jokerBotHand.splice(defenderIndex, 1)[0];
+        jokerTable.push(botBeat);
+        refillJokerHands();
+        jokerTable = [];
+        checkJokerEnd();
+        if (jokerActive) {
+          document.getElementById("jokerInfo").innerText = T[lang].botTurn;
+          setTimeout(botAttackJoker, 550);
+        }
+      } else {
+        jokerBotHand.push(card);
+        jokerTable = [];
+        refillJokerHands();
+        checkJokerEnd();
+        if (jokerActive) document.getElementById("jokerInfo").innerText = T[lang].yourTurn;
+      }
+      renderJoker();
+    }, 450);
+    return;
+  }
+
+  if (jokerMode === "defend") {
+    const attackCard = jokerTable[0];
+    if (!canBeatJoker(card, attackCard)) {
+      document.getElementById("jokerInfo").innerText = T[lang].cannotBeat;
+      return;
+    }
+    jokerPlayerHand.splice(index, 1);
+    jokerTable.push(card);
+    refillJokerHands();
+    jokerTable = [];
+    jokerMode = "attack";
+    checkJokerEnd();
+    if (jokerActive) document.getElementById("jokerInfo").innerText = T[lang].yourTurn;
+    renderJoker();
+  }
+}
+
+function botAttackJoker() {
+  if (!jokerActive || jokerBotHand.length === 0) return;
+  jokerBotHand.sort((a, b) => jokerRankValue(a) - jokerRankValue(b));
+  const attack = jokerBotHand.shift();
+  jokerTable = [attack];
+  jokerMode = "defend";
+  document.getElementById("jokerInfo").innerText = T[lang].botTurn;
+  renderJoker();
+}
+
+function jokerTake() {
+  if (!requireAccess() || !jokerActive || jokerMode !== "defend") return;
+  jokerPlayerHand.push(...jokerTable);
+  jokerTable = [];
+  refillJokerHands();
+  jokerMode = "defend";
+  document.getElementById("jokerInfo").innerText = T[lang].botTurn;
+  renderJoker();
+  setTimeout(botAttackJoker, 550);
+}
+
+function checkJokerEnd() {
+  if (jokerDeck.length === 0 && jokerPlayerHand.length === 0) {
+    jokerActive = false;
+    balance += 25;
+    document.getElementById("jokerInfo").innerText = `${T[lang].jokerWin} +25`;
+    updateBalances();
+    return true;
+  }
+
+  if (jokerDeck.length === 0 && jokerBotHand.length === 0) {
+    jokerActive = false;
+    balance -= 25;
+    document.getElementById("jokerInfo").innerText = `${T[lang].jokerLose} -25`;
+    updateBalances();
+    return true;
+  }
+
+  return false;
+}
+
+loadBalance();
+applyText();
+enforceAccess();
+setInterval(enforceAccess, 1000);
+</script>
+<script>
+const RENDER_URL = "https://telegram-game-bot-e8yt.onrender.com";
+
+const params = new URLSearchParams(window.location.search);
+const userId = params.get("user");
+
+async function checkAccess() {
+  // PRO trial: отсутствие userId НЕ блокирует бесплатные 5 минут.
+  // Серверная проверка только подтверждает оплаченное время.
+  if (!userId) return;
+
+  try {
+    const res = await fetch(`${RENDER_URL}/check_access?user=${userId}`);
+    const data = await res.json();
+
+    if (data.access) {
+      if (data.until) {
+        let serverUntil = Number(data.until);
+        if (serverUntil > 0 && serverUntil < 1000000000000) serverUntil *= 1000; // если сервер вернул секунды
+        setAccessUntil(serverUntil);
+      } else if (!hasAccess()) {
+        activateAccess(24);
+      }
+    }
+  } catch (e) {
+    console.log("error", e);
+  }
+}
+
+checkAccess();
+setInterval(checkAccess, 5000);
+</script>
+</body>
+</html>
